@@ -7,7 +7,9 @@ import {
   getWatcherCount,
   setWatcher,
   unsetWatcher,
-  getQueryIdFromPath
+  getQueryIdFromPath,
+  setCallback,
+  unsetCallback
 } from '../utils/query'
 
 /**
@@ -128,7 +130,7 @@ export const watchEvent = (firebase, dispatch, options) => {
   // Handle all other queries
 
   /* istanbul ignore next: is run by tests but doesn't show in coverage */
-  query.on(
+  let callbackFunction = query.on(
     type,
     snapshot => {
       let data = type === 'child_removed' ? undefined : snapshot.val()
@@ -174,6 +176,7 @@ export const watchEvent = (firebase, dispatch, options) => {
       })
     }
   )
+  setCallback(firebase, dispatch, type, watchPath, id, query, callbackFunction)
 }
 
 /**
@@ -196,6 +199,7 @@ export const unWatchEvent = (
 ) => {
   const watchPath = !storeAs ? path : `${path}@${storeAs}`
   unsetWatcher(firebase, dispatch, type, watchPath, queryId)
+  unsetCallback(firebase, dispatch, type, watchPath, queryId)
 }
 
 /**

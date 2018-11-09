@@ -134,6 +134,46 @@ export const unsetWatcher = (firebase, dispatch, event, path, queryId) => {
 }
 
 /**
+ * @private
+ * @description Update the number of watchers for a query
+ * @param {Object} firebase - Internal firebase object
+ * @param {String} event - Type of event to watch for
+ * @param {String} path - Path to watch with watcher
+ * @param {String} queryId - Id of query
+ * @return {Integer} watcherCount - count
+ */
+export const setCallback = (firebase, dispatch, event, path, queryId, query, callback) => {
+  const id =
+    queryId || getQueryIdFromPath(path, event) || getWatchPath(event, path)
+  firebase._.callbacks[id] = { query: query, callback: callback }
+  /*
+      if (firebase._.watchers[id]) {
+          firebase._.watchers[id]++
+      } else {
+          firebase._.watchers[id] = 1
+      }
+  dispatch({type: actionTypes.SET_LISTENER, path, payload: {id}})
+
+  return firebase._.watchers[id]
+  */
+}
+/**
+ * @private
+ * @description Update the number of watchers for a query
+ * @param {Object} firebase - Internal firebase object
+ * @param {String} event - Type of event to watch for
+ * @param {String} path - Path to watch with watcher
+ * @param {String} queryId - Id of query
+ * @return {Integer} watcherCount - count
+ */
+export const unsetCallback = (firebase, dispatch, event, path, queryId) => {
+  const id =
+    queryId || getQueryIdFromPath(path, event) || getWatchPath(event, path)
+  firebase._.callbacks[id].query.off(event, firebase._.callbacks[id].callback)
+  delete firebase._.callbacks[id]
+}
+
+/**
  * @description Modify query to include methods based on query parameters (such
  * as orderByChild).
  * @param {Array} queryParams - Array of query parameters to apply to query
