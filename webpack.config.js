@@ -8,7 +8,7 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 const config = {
   module: {
     rules: [
-      { test: /\.js$/, loaders: ['babel-loader'], exclude: /node_modules/ }
+      { test: /\.js$/, loaders: ['babel-loader'], exclude: /\.\/node_modules/ }
     ]
   },
   output: {
