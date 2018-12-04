@@ -143,19 +143,12 @@ export const unsetWatcher = (firebase, dispatch, event, path, queryId) => {
  * @return {Integer} watcherCount - count
  */
 export const setCallback = (firebase, dispatch, event, path, queryId, query, callback) => {
-  const id =
-    queryId || getQueryIdFromPath(path, event) || getWatchPath(event, path)
-  firebase._.callbacks[id] = { query: query, callback: callback }
-  /*
-      if (firebase._.watchers[id]) {
-          firebase._.watchers[id]++
-      } else {
-          firebase._.watchers[id] = 1
-      }
-  dispatch({type: actionTypes.SET_LISTENER, path, payload: {id}})
-
-  return firebase._.watchers[id]
-  */
+    const id =
+        queryId || getQueryIdFromPath(path, event) || getWatchPath(event, path)
+    if (!firebase._.callbacks[id]) {
+        firebase._.callbacks[id] = []
+    }
+    firebase._.callbacks[id].push({ query: query, callback: callback })
 }
 /**
  * @private
@@ -167,10 +160,12 @@ export const setCallback = (firebase, dispatch, event, path, queryId, query, cal
  * @return {Integer} watcherCount - count
  */
 export const unsetCallback = (firebase, dispatch, event, path, queryId) => {
-  const id =
-    queryId || getQueryIdFromPath(path, event) || getWatchPath(event, path)
-  firebase._.callbacks[id].query.off(event, firebase._.callbacks[id].callback)
-  delete firebase._.callbacks[id]
+    const id =
+        queryId || getQueryIdFromPath(path, event) || getWatchPath(event, path)
+    if (firebase._.callbacks[id] && firebase._.callbacks[id].length > 0) {
+        const callbackObject = firebase._.callbacks[id].pop();
+        callbackObject.query.off(event, callbackObject.callback)
+    }
 }
 
 /**
